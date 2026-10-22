@@ -1,0 +1,21 @@
+{
+  "name": "espectro-posvendas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de pós-vendas para equipamentos laboratoriais",
+  "type": "module",
+  "main": "server/server.js",
+  "engines": {
+    "node": ">=20.6"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/server.js",
+    "dev": "node --watch --env-file-if-exists=.env server/server.js",
+    "seed": "node --env-file-if-exists=.env server/seed.js",
+    "demo": "node -e \"process.env.MONGODB_URI='memoria';import('./server/server.js')\""
+  },
+  "dependencies": {
+    "mongodb": "^6.21.0",
+    "nodemailer": "^10.1.7"
+  }
+}

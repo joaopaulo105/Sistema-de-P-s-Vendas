@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Espectro Pós-Vendas</title>
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/views.css">
+  <script src="/js/tema.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="side" id="side">
+      <div class="brand">
+        <div class="brand-row">
+          <img src="/img/logo.svg" alt="">
+          <div class="brand-name">Espectro<small>Pós-vendas · Lab</small></div>
+        </div>
+        <div class="spectrum" aria-hidden="true"></div>
+      </div>
+      <nav class="nav" id="nav" aria-label="Menu principal"></nav>
+      <div class="side-user">
+        <span class="avatar" id="avatar" aria-hidden="true"></span>
+        <div class="who"><b id="userName"></b><span id="userRole"></span></div>
+        <button type="button" id="themeBtn" aria-label="Alternar tema"></button>
+        <button type="button" id="logoutBtn" aria-label="Sair"><svg class="i"><use href="/img/icones.svg#logout"/></svg></button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="top">
+        <button class="btn icon ghost menu-btn" type="button" id="menuBtn" aria-label="Abrir menu"><svg class="i"><use href="/img/icones.svg#menu"/></svg></button>
+        <div class="crumb"><span class="eyebrow" id="eyebrow"></span><h1 id="title">Carregando…</h1></div>
+        <div class="top-actions">
+          <div style="position:relative">
+            <button class="btn icon ghost bell" type="button" id="bellBtn" aria-label="Alertas de manutenção" aria-expanded="false"><svg class="i"><use href="/img/icones.svg#bell"/></svg></button>
+            <div id="popHost"></div>
+          </div>
+          <a class="btn pri" href="#/relatorios/novo"><svg class="i"><use href="/img/icones.svg#plus"/></svg><span class="lab">Relatório técnico</span></a>
+        </div>
+      </header>
+      <div class="scroll" id="scroll">
+        <main class="content" id="view" tabindex="-1"></main>
+      </div>
+    </div>
+  </div>
+  <div id="overlay"></div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

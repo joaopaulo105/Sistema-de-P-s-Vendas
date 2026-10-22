@@ -1,0 +1,76 @@
+/* Espectro · tokens de design
+   Conceito: console de instrumento de laboratório sobre papel milimetrado.
+   Cada tipo de equipamento ganha uma cor de "comprimento de onda" (λ) do espectro visível. */
+
+:root {
+  /* superfícies e texto — tema claro */
+  --bg: #F3F5FA;
+  --grid: rgba(40, 60, 120, .055);
+  --panel: #FFFFFF;
+  --panel-2: #EEF1F8;
+  --line: #D9DFEC;
+  --line-2: #C6CEE0;
+  --fg: #0E1626;
+  --fg-2: #3A4760;
+  --muted: #64728D;
+
+  /* destaque e semântica */
+  --accent: #3346D3;
+  --accent-fg: #FFFFFF;
+  --accent-soft: rgba(51, 70, 211, .10);
+  --ok: #0F8F5F;
+  --warn: #B07000;
+  --crit: #C9283B;
+  --info: #2563C9;
+
+  /* espectro dos tipos de equipamento */
+  --t-0: #D7324A;  /* hematologia  */
+  --t-1: #B98004;  /* bioquímica   */
+  --t-2: #0E9C8E;  /* eletrólitos  */
+  --t-3: #7A4FD6;  /* coagulação   */
+  --t-4: #D35C1B;
+  --t-5: #2C7BD1;
+  --t-6: #9B2F9E;
+
+  /* trilho lateral (escuro nos dois temas) */
+  --side: #0D1424;
+  --side-fg: #C9D3E8;
+  --side-muted: #7684A3;
+  --side-line: #1E2A42;
+  --side-active: #18233A;
+  --side-accent: #8C9DFF;
+
+  --shadow: 0 1px 0 rgba(14, 22, 38, .04), 0 8px 24px -12px rgba(14, 22, 38, .18);
+  --overlay: rgba(5, 8, 16, .55);
+
+  /* tipografia */
+  --f-display: "Chakra Petch", "Bahnschrift", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+
+  --r: 4px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080C15; --grid: rgba(120, 150, 220, .05); --panel: #0F1626; --panel-2: #141D31; --line: #1F2A42; --line-2: #2A3756;
+    --fg: #E5ECF8; --fg-2: #B2BDD3; --muted: #8190AD;
+    --accent: #8C9DFF; --accent-fg: #0A0F1E; --accent-soft: rgba(140, 157, 255, .13);
+    --ok: #3DD69A; --warn: #F2B544; --crit: #FF6B7D; --info: #6FA8FF;
+    --t-0: #FF5D72; --t-1: #F5BE45; --t-2: #38D9C6; --t-3: #B28DFF; --t-4: #FF8A4C; --t-5: #5BA7FF; --t-6: #E07AE3;
+    --side: #060911; --side-line: #161F33; --side-active: #121B2E;
+    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 12px 32px -14px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080C15; --grid: rgba(120, 150, 220, .05); --panel: #0F1626; --panel-2: #141D31; --line: #1F2A42; --line-2: #2A3756;
+  --fg: #E5ECF8; --fg-2: #B2BDD3; --muted: #8190AD;
+  --accent: #8C9DFF; --accent-fg: #0A0F1E; --accent-soft: rgba(140, 157, 255, .13);
+  --ok: #3DD69A; --warn: #F2B544; --crit: #FF6B7D; --info: #6FA8FF;
+  --t-0: #FF5D72; --t-1: #F5BE45; --t-2: #38D9C6; --t-3: #B28DFF; --t-4: #FF8A4C; --t-5: #5BA7FF; --t-6: #E07AE3;
+  --side: #060911; --side-line: #161F33; --side-active: #121B2E;
+  --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 12px 32px -14px rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
