@@ -77,7 +77,7 @@ function relatorio(r, cfg) {
         <tr><th>Trabalho concluído</th><td>${so(r.conclusao)}</td></tr></tbody></table>
     </div>
     <div class="sig">
-      ${assinaturaLinha(null, 'Assessor técnico', r.tecnico)}
+      ${assinaturaLinha(r.assinatura_tecnico, 'Assessor técnico', r.tecnico)}
       ${assinaturaLinha(r.assinatura, 'Cliente', r.assinante_nome, r.assinante_doc)}
     </div>
     ${rodapeEmpresa(cfg)}</div>`;
@@ -104,8 +104,9 @@ function orcamento(o, cfg) {
     <div class="f-total"><span>Valor total do orçamento</span><b>${brl(t.total)}</b></div>
     ${o.obs ? `<table class="f-g"><caption>Observações</caption><tbody><tr><td style="white-space:pre-wrap">${esc(o.obs)}</td></tr></tbody></table>` : ''}
     <div class="sig">
-      ${assinaturaLinha(null, 'Responsável técnico', o.tecnico)}
-      ${assinaturaLinha(null, 'De acordo — Cliente', '', 'Data: ____/____/______')}
+      ${assinaturaLinha(o.assinatura_tecnico, 'Responsável técnico', o.tecnico)}
+      ${assinaturaLinha(o.assinatura_cliente, 'De acordo — Cliente', o.aprovador_nome,
+        [o.aprovador_doc, `Data: ${o.cliente_assinou_em ? fmtD(o.cliente_assinou_em) : '____/____/______'}`].filter(Boolean).join(' · '))}
     </div>
     ${rodapeEmpresa(cfg)}</div>`;
 }

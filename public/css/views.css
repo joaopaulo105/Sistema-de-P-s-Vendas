@@ -82,10 +82,34 @@
 .sig-wrap .base { position: absolute; left: 24px; right: 24px; bottom: 40px; border-top: 1px dashed #9AA6BF; pointer-events: none; }
 .sig-wrap .x { position: absolute; left: 24px; bottom: 44px; font: 600 16px var(--f-display); color: #9AA6BF; pointer-events: none; }
 .sig-wrap .ph { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; color: #8591AB; pointer-events: none; }
-.sig-wrap .tools { position: absolute; top: 8px; right: 8px; }
+.sig-wrap .tools { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; }
 .sig-wrap .tools button { all: unset; cursor: pointer; padding: 4px 9px; border-radius: 3px; font-size: 12px; color: #3A4760; background: #EEF1F8; border: 1px solid #D9DFEC; }
 .sig-wrap .tools button:focus-visible { outline: 2px solid #3346D3; }
 .sig-wrap.locked canvas { cursor: default; }
+
+/* assinatura em tela cheia (celular) */
+.sig-full-aberta, .sig-full-aberta body { overflow: hidden; overscroll-behavior: none; }
+.sig-full {
+  position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; gap: 10px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) calc(10px + env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) calc(10px + env(safe-area-inset-left, 0px));
+  background: var(--bg); animation: fade .15s ease both;
+}
+.sig-full-h { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.sig-full-h .t { display: flex; flex-direction: column; margin-right: auto; min-width: 0; }
+.sig-full .sig-wrap { flex: 1; min-height: 0; }
+.sig-full .sig-wrap canvas { height: 100%; }
+.sig-full .sig-wrap .base { bottom: 22%; }
+.sig-full .sig-wrap .x { bottom: calc(22% + 4px); }
+.sig-full-gire { display: none; }
+@media (orientation: portrait) and (max-width: 560px) {
+  .sig-full:not(.vertical-ok) .sig-full-gire {
+    position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    padding: 24px; text-align: center; background: var(--bg);
+  }
+  .sig-full-gire p { max-width: 260px; color: var(--muted); }
+  .sig-full-gire b { display: block; margin-bottom: 4px; font-family: var(--f-display); font-size: 18px; color: var(--fg); }
+  .sig-full-gire::before { content: "⟳"; font-size: 54px; line-height: 1; color: var(--accent); }
+}
 
 .items td { padding: 8px; }
 .items th { padding: 10px 8px; }
@@ -125,4 +149,7 @@
   .ro .w2 { grid-column: auto; }
   .bar-row { grid-template-columns: 96px minmax(0, 1fr) 28px; }
   .hello h2 { font-size: 21px; }
+  .sig-wrap canvas { height: 220px; }
+  .sig-wrap .tools button { padding: 8px 12px; font-size: 13px; }
+  .side-actions .btn { min-height: 48px; }
 }

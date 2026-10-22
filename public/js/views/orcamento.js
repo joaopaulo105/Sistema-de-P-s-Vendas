@@ -1,7 +1,8 @@
 // Editor de orçamento: itens (código, descrição, quantidade, valor), mão de obra, deslocamento e total.
 import { api } from '../api.js';
-import { $, $$, esc, ic, opcoes, brl, n2, hoje } from '../util.js';
+import { $, $$, esc, ic, opcoes, brl, n2, hoje, fmtD } from '../util.js';
 import { toast, erro } from '../ui.js';
+import { areaAssinatura, montarAssinatura } from '../assinatura.js';
 import { blocoCadastro, itemVazio, linhaItem, totais } from './relatorio.js';
 
 const resumo = t => `<div class="sum-row"><span>Peças e materiais</span><b class="num">${brl(t.itens)}</b></div>
@@ -18,6 +19,7 @@ export default async function orcamento(ctx) {
   const d = atual ? { ...atual, itens: atual.itens.length ? atual.itens : [itemVazio()] } : {
     parque_id: ctx.query.parque || parque[0].id, tecnico_id: ctx.user.id, data: hoje(), validade_dias: 15, situacao: 'Em aberto',
     itens: [itemVazio()], horas: '', valor_hora: '', deslocamento: '', obs: '',
+    assinatura_cliente: null, aprovador_nome: '', aprovador_doc: '', assinatura_tecnico: null,
   };
   const t = totais(d);
   const v = x => esc(x ?? '');
@@ -56,6 +58,16 @@ export default async function orcamento(ctx) {
             <div class="field"><label for="oSit">Situação</label><select class="inp" id="oSit" name="situacao">${opcoes(['Em aberto', 'Aprovado', 'Recusado'].map(s => ({ id: s, nome: s })), d.situacao)}</select></div>
             <div class="field span2"><label for="oObs">Observações</label><input class="inp" id="oObs" name="obs" maxlength="1000" value="${v(d.obs)}" placeholder="Prazo de entrega, condições de pagamento…"></div>
           </div></section>
+
+        <section class="card"><div class="card-h"><h2>De acordo do cliente</h2><span class="sub">${d.cliente_assinou_em ? `assinado em ${fmtD(d.cliente_assinou_em)}` : 'assine com o dedo no celular ou com o mouse · no celular, use “Tela cheia”'}</span></div>
+          <div class="card-b grid g2">
+            <div class="spanall">${areaAssinatura('cliente', { valor: d.assinatura_cliente })}</div>
+            <div class="field"><label for="oAn">Nome completo</label><input class="inp" id="oAn" name="aprovador_nome" maxlength="160" value="${v(d.aprovador_nome)}" placeholder="Quem aprova o orçamento"></div>
+            <div class="field"><label for="oAd">Documento</label><input class="inp" id="oAd" name="aprovador_doc" maxlength="60" value="${v(d.aprovador_doc)}" placeholder="RG, CPF ou registro profissional"></div>
+          </div></section>
+
+        <section class="card"><div class="card-h"><h2>Assinatura do responsável técnico</h2></div>
+          <div class="card-b">${areaAssinatura('tecnico', { valor: d.assinatura_tecnico })}</div></section>
       </div>
 
       <aside class="sticky-side">
@@ -71,6 +83,14 @@ export default async function orcamento(ctx) {
 
     montar(root) {
       const form = $('#fOrc', root);
+      const pads = [
+        montarAssinatura(root, 'cliente', { valor: d.assinatura_cliente, titulo: 'De acordo do cliente', aoMudar: val => {
+          d.assinatura_cliente = val;
+          // assinar o "de acordo" é aprovar o orçamento
+          if (val && d.situacao === 'Em aberto') { d.situacao = 'Aprovado'; $('#oSit', root).value = 'Aprovado'; toast('Situação alterada para Aprovado. Salve para confirmar.'); }
+        } }),
+        montarAssinatura(root, 'tecnico', { valor: d.assinatura_tecnico, titulo: 'Assinatura do responsável técnico', aoMudar: val => { d.assinatura_tecnico = val; } }),
+      ];
       const recalcular = () => {
         const tt = totais(d);
         d.itens.forEach((it, i) => { const c = $(`[data-lt="${i}"]`, root); if (c) c.textContent = brl(n2(it.quantidade) * n2(it.valor_unitario)); });
@@ -104,6 +124,7 @@ export default async function orcamento(ctx) {
       form.addEventListener('input', entrada);
       form.addEventListener('click', clique);
       form.addEventListener('submit', e => e.preventDefault());
+      return () => pads.forEach(p => p.destruir());
     },
   };
 }

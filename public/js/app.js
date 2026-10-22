@@ -162,6 +162,18 @@ $('#logoutBtn').addEventListener('click', async () => {
 });
 window.addEventListener('hashchange', navegar);
 
+// ---------- tabelas no celular ----------
+// No celular as linhas viram cartões (ver components.css); cada célula recebe o nome da coluna para servir de rótulo.
+function rotularTabelas() {
+  for (const t of document.querySelectorAll('#view table.tbl')) {
+    const nomes = [...t.querySelectorAll('thead th')].map(th => th.querySelector('.sr-only') ? '' : th.textContent.trim());
+    for (const tr of t.querySelectorAll('tbody tr')) {
+      [...tr.children].forEach((td, i) => { if (!td.hasAttribute('colspan') && td.dataset.rotulo !== nomes[i]) td.dataset.rotulo = nomes[i] ?? ''; });
+    }
+  }
+}
+new MutationObserver(rotularTabelas).observe($('#view'), { childList: true, subtree: true });
+
 // ---------- início ----------
 (async function iniciar() {
   try {

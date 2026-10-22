@@ -1,4 +1,5 @@
 // Conexão com o MongoDB, índices e utilitários de dados.
+import dns from 'node:dns/promises';
 import { MongoClient, ObjectId } from 'mongodb';
 import { ClienteMemoria } from './memoria.js';
 
@@ -13,7 +14,20 @@ export let db;
 /** Coleções usadas pelo sistema. */
 export const col = new Proxy({}, { get: (_, nome) => db.collection(nome) });
 
+// Em alguns Windows o Node usa um DNS local (127.0.0.1) que recusa consultas SRV, e o
+// mongodb+srv:// falha com "querySrv ECONNREFUSED". Nesse caso cai para DNS públicos.
+async function garantirDnsSrv() {
+  const m = MONGODB_URI.match(/^mongodb\+srv:\/\/(?:[^@/]*@)?([^/?]+)/);
+  if (!m) return;
+  try {
+    await dns.resolveSrv(`_mongodb._tcp.${m[1]}`);
+  } catch {
+    dns.setServers((process.env.DNS_SERVERS || '8.8.8.8,1.1.1.1').split(',').map(s => s.trim()));
+  }
+}
+
 export async function conectar() {
+  await garantirDnsSrv();
   await client.connect();
   db = client.db(MONGODB_DB);
   await Promise.all([

@@ -69,6 +69,7 @@
   .form .f-no { text-align: center; }
   .form .f-logo img { margin: 0 auto; }
   .form .f-2 { grid-template-columns: 1fr; }
+  .form th { padding-inline: 3px; font-size: 9px; overflow-wrap: normal; hyphens: auto; }
 }
 
 @media (max-width: 560px) {

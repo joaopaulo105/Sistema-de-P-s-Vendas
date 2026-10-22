@@ -7,6 +7,13 @@ const LIMITE_ASSINATURA = 600_000; // ~450 KB de imagem
 
 const anoAtual = () => new Date().getFullYear();
 
+/** PNG da assinatura feita na tela (ou null). */
+function lerAssinatura(v, quem) {
+  const a = v ? String(v) : null;
+  if (a && (!reAssinatura.test(a) || a.length > LIMITE_ASSINATURA)) throw new HttpError(400, `Assinatura ${quem} inválida. Limpe e assine novamente.`);
+  return a;
+}
+
 /** Peças: código, descrição, quantidade e valor unitário (relatório e orçamento). */
 function lerItens(b) {
   const itens = (Array.isArray(b.itens) ? b.itens : [])
@@ -26,8 +33,6 @@ function totais(o) {
 }
 
 function camposRelatorio(b) {
-  const assinatura = b.assinatura ? String(b.assinatura) : null;
-  if (assinatura && (!reAssinatura.test(assinatura) || assinatura.length > LIMITE_ASSINATURA)) throw new HttpError(400, 'Assinatura inválida. Limpe e assine novamente.');
   return {
     tecnico_id: oid(b.tecnico_id), responsavel: opc(b.responsavel, 120),
     procedimentos: txt(b.procedimentos, 20000),
@@ -35,7 +40,8 @@ function camposRelatorio(b) {
     chegada: dataHora(b.chegada), saida: dataHora(b.saida), conclusao: data(b.conclusao),
     retorno: data(b.retorno), proxima_manutencao: data(b.proxima_manutencao),
     itens: lerItens(b), valor_hora: Math.max(0, num(b.valor_hora)), deslocamento: Math.max(0, num(b.deslocamento)),
-    assinatura, assinante_nome: opc(b.assinante_nome, 160), assinante_doc: opc(b.assinante_doc, 60),
+    assinatura: lerAssinatura(b.assinatura, 'do cliente'), assinante_nome: opc(b.assinante_nome, 160), assinante_doc: opc(b.assinante_doc, 60),
+    assinatura_tecnico: lerAssinatura(b.assinatura_tecnico, 'do técnico'),
   };
 }
 
@@ -52,8 +58,22 @@ function camposOrcamento(b) {
     situacao: ['Em aberto', 'Aprovado', 'Recusado'].includes(b.situacao) ? b.situacao : 'Em aberto',
     horas: Math.max(0, num(b.horas)), valor_hora: Math.max(0, num(b.valor_hora)), deslocamento: Math.max(0, num(b.deslocamento)),
     obs: opc(b.obs, 1000), itens: lerItens(b),
+    assinatura_tecnico: lerAssinatura(b.assinatura_tecnico, 'do técnico'),
+    ...assinaturaCliente(b),
   };
 }
+
+/** "De acordo" do cliente no orçamento: assinatura, nome e documento de quem aprovou. */
+function assinaturaCliente(b) {
+  const assinatura_cliente = lerAssinatura(b.assinatura_cliente, 'do cliente');
+  const aprovador_nome = opc(b.aprovador_nome, 160);
+  if (assinatura_cliente && !aprovador_nome) throw new HttpError(400, 'Informe o nome completo de quem assinou o orçamento.');
+  return { assinatura_cliente, aprovador_nome, aprovador_doc: opc(b.aprovador_doc, 60) };
+}
+
+/** Data do "de acordo": registrada quando o cliente assina (ou assina de novo) e apagada se a assinatura for removida. */
+const dataAssinatura = (novo, atual = {}) =>
+  !novo.assinatura_cliente ? null : novo.assinatura_cliente === atual.assinatura_cliente ? atual.cliente_assinou_em || hoje() : hoje();
 
 async function montarOrcamento(o, M) {
   M = M || await mapas();
@@ -65,7 +85,7 @@ export default r => {
   // ================= RELATÓRIO TÉCNICO =================
   r.get('/api/relatorios', async () => {
     const M = await mapas();
-    const lista = await col.relatorios.find({}, { projection: { assinatura: 0 } }).sort({ ano: -1, numero: -1 }).toArray();
+    const lista = await col.relatorios.find({}, { projection: { assinatura: 0, assinatura_tecnico: 0 } }).sort({ ano: -1, numero: -1 }).toArray();
     const unidades = new Map((await col.parque.find({ _id: { $in: lista.map(x => x.parque_id) } }).toArray()).map(u => [String(u._id), u]));
     return lista.map(x => {
       const u = x.snapshot?.unidade || detalharUnidade(unidades.get(String(x.parque_id)), M) || {};
@@ -132,7 +152,7 @@ export default r => {
   // ================= ORÇAMENTO =================
   r.get('/api/orcamentos', async () => {
     const M = await mapas();
-    const lista = await col.orcamentos.find().sort({ ano: -1, numero: -1 }).toArray();
+    const lista = await col.orcamentos.find({}, { projection: { assinatura_cliente: 0, assinatura_tecnico: 0 } }).sort({ ano: -1, numero: -1 }).toArray();
     const unidades = new Map((await col.parque.find({ _id: { $in: lista.map(x => x.parque_id) } }).toArray()).map(u => [String(u._id), u]));
     return lista.map(o => {
       const u = detalharUnidade(unidades.get(String(o.parque_id)), M) || {};
@@ -148,7 +168,8 @@ export default r => {
     exigir({ parque_id }, { parque_id: 'equipamento' });
     existe(await col.parque.findOne({ _id: parque_id }), 'Equipamento');
     const ano = anoAtual();
-    const doc = { ...camposOrcamento(body), parque_id, ano, numero: await proximoNumero('ORC', ano), criado_por: user._id, criado_em: new Date() };
+    const campos = camposOrcamento(body);
+    const doc = { ...campos, cliente_assinou_em: dataAssinatura(campos), parque_id, ano, numero: await proximoNumero('ORC', ano), criado_por: user._id, criado_em: new Date() };
     const { insertedId } = await col.orcamentos.insertOne(doc);
     const o = { _id: insertedId, ...doc };
     await registrar(parque_id, doc.data, 'orcamento', `Orçamento ${numDoc('ORC', o)} emitido — ${totais(o).total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, { refTipo: 'orcamento', refId: insertedId, usuarioId: user._id });
@@ -158,6 +179,7 @@ export default r => {
   r.put('/api/orcamentos/:id', async ({ params, body, user }) => {
     const atual = existe(await col.orcamentos.findOne({ _id: oid(params.id) }), 'Orçamento');
     const set = camposOrcamento(body);
+    set.cliente_assinou_em = dataAssinatura(set, atual);
     const novo = await col.orcamentos.findOneAndUpdate({ _id: atual._id }, { $set: set }, { returnDocument: 'after' });
     if (set.situacao !== atual.situacao && set.situacao !== 'Em aberto')
       await registrar(atual.parque_id, hoje(), 'orcamento', `Orçamento ${numDoc('ORC', atual)} ${set.situacao.toLowerCase()} pelo cliente`, { refTipo: 'orcamento', refId: atual._id, usuarioId: user._id });

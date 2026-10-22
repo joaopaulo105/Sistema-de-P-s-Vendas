@@ -2,7 +2,7 @@
 import { api } from '../api.js';
 import { $, $$, esc, ic, opcoes, pill, brl, n2 } from '../util.js';
 import { toast, erro, confirmar } from '../ui.js';
-import { Assinatura } from '../assinatura.js';
+import { areaAssinatura, montarAssinatura } from '../assinatura.js';
 
 /** Bloco somente leitura com os dados trazidos do cadastro (usado também no orçamento). */
 export function blocoCadastro(u) {
@@ -61,7 +61,7 @@ export default async function relatorio(ctx) {
     parque_id: ctx.query.parque || parque.find(u => u.status !== 'Sucata')?.id || '',
     tecnico_id: (tecnicos.find(u => u.id === ctx.user.id && u.perfil === 'Técnico') || tecnicos.find(u => u.perfil === 'Técnico') || tecnicos[0] || {}).id || '',
     responsavel: '', procedimentos: '', horas: '', chegada: '', saida: '', conclusao: '', retorno: '', proxima_manutencao: '',
-    itens: [itemVazio()], valor_hora: '', deslocamento: '', assinatura: null, assinante_nome: '', assinante_doc: '', status: 'rascunho',
+    itens: [itemVazio()], valor_hora: '', deslocamento: '', assinatura: null, assinante_nome: '', assinante_doc: '', assinatura_tecnico: null, status: 'rascunho',
   };
   const bloqueado = d.status === 'finalizado';
   const t = totais(d);
@@ -120,16 +120,15 @@ export default async function relatorio(ctx) {
             <div class="field"><label for="rTot">Valor total</label><input class="inp num" id="rTot" readonly value="${brl(t.total)}"></div>
           </div></section>
 
-        <section class="card"><div class="card-h"><h2>Assinatura do cliente</h2><span class="sub">assine com o dedo no celular ou com o mouse</span></div>
+        <section class="card"><div class="card-h"><h2>Assinatura do cliente</h2><span class="sub">assine com o dedo no celular ou com o mouse · no celular, use “Tela cheia”</span></div>
           <div class="card-b grid g2">
-            <div class="spanall"><div class="sig-wrap${bloqueado ? ' locked' : ''}">
-              <canvas id="sig" aria-label="Área de assinatura"></canvas><div class="base"></div><div class="x">×</div>
-              <div class="ph" id="sigPh"${d.assinatura ? ' hidden' : ''}>${bloqueado ? 'Sem assinatura' : 'Assine aqui'}</div>
-              ${bloqueado ? '' : '<div class="tools"><button type="button" id="sigLimpar">Limpar</button></div>'}
-            </div></div>
+            <div class="spanall">${areaAssinatura('cliente', { valor: d.assinatura, bloqueada: bloqueado })}</div>
             <div class="field"><label for="rNm">Nome completo</label><input class="inp" id="rNm" name="assinante_nome" maxlength="160" value="${v(d.assinante_nome)}" placeholder="Quem recebeu o atendimento"${dis}></div>
             <div class="field"><label for="rDc">Documento</label><input class="inp" id="rDc" name="assinante_doc" maxlength="60" value="${v(d.assinante_doc)}" placeholder="RG, CPF ou registro profissional"${dis}></div>
           </div></section>
+
+        <section class="card"><div class="card-h"><h2>Assinatura do técnico</h2><span class="sub">assessor técnico responsável pelo atendimento</span></div>
+          <div class="card-b">${areaAssinatura('tecnico', { valor: d.assinatura_tecnico, bloqueada: bloqueado })}</div></section>
       </div>
 
       <aside class="sticky-side">
@@ -146,13 +145,13 @@ export default async function relatorio(ctx) {
 
     montar(root) {
       const form = $('#fRt', root);
-      const pad = new Assinatura($('#sig', root), {
-        valor: d.assinatura, bloqueada: bloqueado,
-        aoMudar: val => { d.assinatura = val; $('#sigPh', root).hidden = !!val; },
-      });
+      const pads = [
+        montarAssinatura(root, 'cliente', { valor: d.assinatura, bloqueada: bloqueado, titulo: 'Assinatura do cliente', aoMudar: val => { d.assinatura = val; } }),
+        montarAssinatura(root, 'tecnico', { valor: d.assinatura_tecnico, bloqueada: bloqueado, titulo: 'Assinatura do técnico', aoMudar: val => { d.assinatura_tecnico = val; } }),
+      ];
       const ler = () => {
         const f = Object.fromEntries(new FormData(form));
-        return { ...f, itens: d.itens, assinatura: d.assinatura };
+        return { ...f, itens: d.itens, assinatura: d.assinatura, assinatura_tecnico: d.assinatura_tecnico };
       };
       const recalcular = () => {
         const tt = totais(ler());
@@ -174,7 +173,6 @@ export default async function relatorio(ctx) {
         return registro;
       };
       const clique = async e => {
-        if (e.target.id === 'sigLimpar') return pad.limpar();
         if (e.target.closest('[data-adicionar]')) { d.itens.push(itemVazio()); redesenharItens(); $$('[data-f="codigo"]', root).pop()?.focus(); return; }
         const rm = e.target.closest('[data-remover]');
         if (rm) { d.itens.splice(+rm.dataset.remover, 1); if (!d.itens.length) d.itens.push(itemVazio()); redesenharItens(); return; }
@@ -213,7 +211,7 @@ export default async function relatorio(ctx) {
       form.addEventListener('input', entrada);
       form.addEventListener('click', clique);
       form.addEventListener('submit', e => e.preventDefault());
-      return () => pad.destruir();
+      return () => pads.forEach(p => p.destruir());
     },
   };
 }

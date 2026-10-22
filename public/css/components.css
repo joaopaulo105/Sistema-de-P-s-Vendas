@@ -156,9 +156,40 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 
 @media (max-width: 860px) {
   .g3, .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 16px evita o zoom automático do iPhone ao tocar num campo */
+  .inp, .items .inp { font-size: 16px; min-height: 44px; }
+  .btn { min-height: 42px; }
+  .btn.sm { min-height: 38px; }
+  .btn.sm.icon { width: 38px; }
 }
 @media (max-width: 560px) {
   .g2, .g3, .g4 { grid-template-columns: 1fr; }
   .span2 { grid-column: auto; }
   .modal-b { padding: 16px; }
+  .modal-h { padding: 14px 16px; }
+  .modal-f { padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .modal-f .btn { flex: 1; justify-content: center; }
+  .ov { padding: 10px; }
+
+  /* tabelas viram cartões: rótulo da coluna (data-rotulo, preenchido em app.js) à esquerda */
+  .tbl-wrap { overflow-x: visible; }
+  .tbl thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; width: auto !important; }
+  .tbl tbody tr { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .tbl tbody tr:last-child { border-bottom: 0; }
+  table.tbl td, table.tbl td:first-child { position: relative; padding: 4px 0 4px 40%; border: 0; text-align: left; min-height: 30px; overflow-wrap: anywhere; }
+  .tbl td::before {
+    content: attr(data-rotulo); position: absolute; left: 0; top: 6px; width: calc(40% - 12px); text-align: left;
+    font-family: var(--f-display); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  }
+  table.tbl td[data-rotulo=""], table.tbl td[colspan] { padding-left: 0; }
+  .tbl td[data-rotulo=""]::before, .tbl td[colspan]::before { display: none; }
+  .tbl td[data-rotulo=""]:not(:empty) { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  /* primeira coluna é o título do cartão (exceto na tabela de peças, onde todas são campos) */
+  table.tbl:not(.items) td:first-child { padding-left: 0; padding-bottom: 6px; font-size: 15px; }
+  .tbl:not(.items) td:first-child::before { display: none; }
+  table.tbl.items td { padding-block: 3px; }
+  .items td::before { top: 17px; }
+  .items td.r { padding-block: 10px; text-align: right; }
+  .items td.r::before { top: 12px; }
 }
