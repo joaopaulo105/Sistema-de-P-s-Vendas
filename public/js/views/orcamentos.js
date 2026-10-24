@@ -3,7 +3,7 @@ import { api } from '../api.js';
 import { esc, ic, fmtD, brl, pill, SITUACAO, vazio } from '../util.js';
 
 export default async function orcamentos() {
-  const lista = await api.get('/api/orcamentos');
+  const lista = await api.get('api/orcamentos');
   return {
     titulo: 'Orçamentos',
     html: `<section class="card">
@@ -16,7 +16,7 @@ export default async function orcamentos() {
           <td>${esc(o.equipamento || '—')}<span class="t2 mono">${esc(o.serie || '')}</span></td>
           <td>${pill(o.situacao, SITUACAO[o.situacao])}</td>
           <td class="r num"><b style="font-weight:600">${brl(o.total)}</b></td>
-          <td class="r"><a class="btn sm ghost icon" href="/documento.html?tipo=orcamento&id=${o.id}" aria-label="Abrir documento ${esc(o.codigo)}">${ic('print')}</a></td>
+          <td class="r"><a class="btn sm ghost icon" href="documento.html?tipo=orcamento&id=${o.id}" aria-label="Abrir documento ${esc(o.codigo)}">${ic('print')}</a></td>
         </tr>`).join('')}</tbody></table></div>` : vazio('Nenhum orçamento', 'Crie um orçamento a partir de um equipamento do parque.')}
     </section>`,
     montar(root) {

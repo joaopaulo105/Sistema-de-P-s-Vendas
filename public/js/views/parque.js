@@ -20,7 +20,7 @@ function vincular(clientes, equipamentos, tipos, aoSalvar) {
       ${campo('primeira_manutencao', 'Primeira manutenção (opcional)', '', `type="date" min="${hoje()}"`)}</div>`,
     ok: 'Vincular',
     aoSalvar: async dados => {
-      const r = await api.post('/api/parque', dados);
+      const r = await api.post('api/parque', dados);
       toast('Equipamento vinculado.');
       aoSalvar(r.id);
     },
@@ -29,7 +29,7 @@ function vincular(clientes, equipamentos, tipos, aoSalvar) {
 
 export default async function parque(ctx) {
   if (ctx.query.cliente) filtros.cliente_id = ctx.query.cliente;
-  const [lista, clientes, tipos] = await Promise.all([api.get('/api/parque' + qs(filtros)), api.get('/api/clientes'), api.get('/api/tipos')]);
+  const [lista, clientes, tipos] = await Promise.all([api.get('api/parque' + qs(filtros)), api.get('api/clientes'), api.get('api/tipos')]);
 
   const linhas = l => l.length ? `<div class="tbl-wrap"><table class="tbl">
     <thead><tr><th>Nº de série</th><th>Equipamento</th><th>Tipo</th><th>Cliente</th><th>Status</th><th>Próx. manutenção</th></tr></thead>
@@ -61,7 +61,7 @@ export default async function parque(ctx) {
       let t;
       const atualizar = async () => {
         try {
-          const l = await api.get('/api/parque' + qs(filtros));
+          const l = await api.get('api/parque' + qs(filtros));
           $('#resultado', root).innerHTML = linhas(l);
           $('#contagem', root).textContent = `${l.length} equipamento${l.length === 1 ? '' : 's'}`;
         } catch (e) { erro(e); }
@@ -78,7 +78,7 @@ export default async function parque(ctx) {
         const tr = e.target.closest('[data-ir]');
         if (tr) return ir(tr.dataset.ir);
         if (e.target.closest('[data-vincular]')) {
-          const [equipamentos] = await Promise.all([api.get('/api/equipamentos')]);
+          const [equipamentos] = await Promise.all([api.get('api/equipamentos')]);
           vincular(clientes, equipamentos, tipos, novoId => { ctx.atualizarAgenda(); ir(novoId); });
         }
       };

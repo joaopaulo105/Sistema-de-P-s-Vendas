@@ -53,8 +53,8 @@ function dicaHoras(d) {
 export default async function relatorio(ctx) {
   const novo = ctx.params[0] === 'novo';
   const [parque, usuarios, atual] = await Promise.all([
-    api.get('/api/parque'), api.get('/api/usuarios'),
-    novo ? null : api.get(`/api/relatorios/${ctx.params[0]}`),
+    api.get('api/parque'), api.get('api/usuarios'),
+    novo ? null : api.get(`api/relatorios/${ctx.params[0]}`),
   ]);
   const tecnicos = usuarios.filter(u => u.ativo);
   const d = atual ? { ...atual, itens: atual.itens.length ? atual.itens : [itemVazio()] } : {
@@ -136,7 +136,7 @@ export default async function relatorio(ctx) {
           <div class="card-b side-actions">
             ${bloqueado ? '' : `<button class="btn" type="button" data-acao="salvar">${ic('file')}Salvar rascunho</button>
               <button class="btn pri" type="button" data-acao="finalizar">${ic('check')}Finalizar relatório</button>`}
-            ${atual ? `<a class="btn" href="/documento.html?tipo=relatorio&id=${atual.id}">${ic('print')}Imprimir / gerar PDF</a>` : ''}
+            ${atual ? `<a class="btn" href="documento.html?tipo=relatorio&id=${atual.id}">${ic('print')}Imprimir / gerar PDF</a>` : ''}
             ${atual && !bloqueado ? `<button class="btn ghost danger" type="button" data-acao="excluir">${ic('trash')}Excluir rascunho</button>` : ''}
             <p class="hint">Para finalizar: procedimentos, data da conclusão, assistente técnico, assinatura e nome completo.</p>
           </div></section>
@@ -169,7 +169,7 @@ export default async function relatorio(ctx) {
       };
       let registro = atual; // depois do primeiro POST, as próximas gravações usam PUT
       const salvar = async () => {
-        registro = registro ? await api.put(`/api/relatorios/${registro.id}`, ler()) : await api.post('/api/relatorios', ler());
+        registro = registro ? await api.put(`api/relatorios/${registro.id}`, ler()) : await api.post('api/relatorios', ler());
         return registro;
       };
       const clique = async e => {
@@ -195,14 +195,14 @@ export default async function relatorio(ctx) {
             if (falta.length) throw new Error(`Falta preencher: ${falta.join(', ')}.`);
             if (!await confirmar({ titulo: 'Finalizar relatório', texto: 'Depois de finalizado, o relatório entra no histórico do equipamento e não pode mais ser alterado.', ok: 'Finalizar' })) return;
             const salvo = await salvar();
-            const r = await api.post(`/api/relatorios/${salvo.id}/finalizar`, dados);
+            const r = await api.post(`api/relatorios/${salvo.id}/finalizar`, dados);
             toast(`${r.codigo} finalizado e incluído no histórico do equipamento.`);
             ctx.atualizarAgenda();
             if (novo) location.hash = `#/relatorios/${r.id}`; else ctx.recarregar();
           }
           if (b.dataset.acao === 'excluir') {
             if (!await confirmar({ titulo: 'Excluir rascunho', texto: `Excluir o rascunho ${atual.codigo}? O número não será reutilizado.`, ok: 'Excluir', perigo: true })) return;
-            await api.del(`/api/relatorios/${atual.id}`);
+            await api.del(`api/relatorios/${atual.id}`);
             toast('Rascunho excluído.');
             location.hash = '#/relatorios';
           }

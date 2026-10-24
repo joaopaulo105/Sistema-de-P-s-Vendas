@@ -18,7 +18,7 @@ async function chamar(metodo, url, corpo) {
   }
   const dados = await r.json().catch(() => ({}));
   if (r.status === 401 && !url.endsWith('/login')) {
-    location.href = '/login.html?voltar=' + encodeURIComponent(location.hash || '');
+    location.href = 'login.html?voltar=' + encodeURIComponent(location.hash || '');
     throw new ErroApi(401, dados.erro || 'Sessão expirada.');
   }
   if (!r.ok) throw new ErroApi(r.status, dados.erro || `Erro ${r.status}`, dados.campos);

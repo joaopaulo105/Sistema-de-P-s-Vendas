@@ -13,7 +13,7 @@ function abrirEquipamento(e, tipos, aoSalvar) {
       ${campo('modelo', 'Modelo *', e.modelo, 'required maxlength="80"')}
       ${selecao('tipo_id', 'Tipo', opcoes(tipos, e.tipo_id), 'spanall')}</div>`,
     aoSalvar: async dados => {
-      if (e.id) await api.put(`/api/equipamentos/${e.id}`, dados); else await api.post('/api/equipamentos', dados);
+      if (e.id) await api.put(`api/equipamentos/${e.id}`, dados); else await api.post('api/equipamentos', dados);
       toast('Equipamento salvo no catálogo.');
       aoSalvar();
     },
@@ -21,7 +21,7 @@ function abrirEquipamento(e, tipos, aoSalvar) {
 }
 
 export default async function catalogo(ctx) {
-  const [tipos, equipamentos] = await Promise.all([api.get('/api/tipos'), api.get('/api/equipamentos')]);
+  const [tipos, equipamentos] = await Promise.all([api.get('api/tipos'), api.get('api/equipamentos')]);
   const tipoPorId = new Map(tipos.map(t => [t.id, t]));
   return {
     titulo: 'Catálogo de equipamentos',
@@ -41,10 +41,12 @@ export default async function catalogo(ctx) {
           <div class="r"><button class="btn pri" type="button" data-novo>${ic('plus')}Novo equipamento</button></div></div>
         ${equipamentos.length ? `<div class="tbl-wrap"><table class="tbl">
           <thead><tr><th>Nome do equipamento</th><th>Marca</th><th>Modelo</th><th>Tipo</th><th class="r">No parque</th><th><span class="sr-only">Ações</span></th></tr></thead>
-          <tbody>${equipamentos.map(e => { const t = tipoPorId.get(e.tipo_id) || {}; return `<tr>
+          <tbody>${equipamentos.map(e => {
+      const t = tipoPorId.get(e.tipo_id) || {}; return `<tr>
             <td><b>${esc(e.nome)}</b></td><td>${esc(e.marca)}</td><td class="mono">${esc(e.modelo)}</td>
             <td>${chipTipo(t.nome, t.sigla, t.cor)}</td><td class="r num">${e.no_parque}</td>
-            <td class="r"><button class="btn sm ghost icon" type="button" data-editar="${e.id}" aria-label="Editar ${esc(e.nome)}">${ic('edit')}</button></td></tr>`; }).join('')}
+            <td class="r"><button class="btn sm ghost icon" type="button" data-editar="${e.id}" aria-label="Editar ${esc(e.nome)}">${ic('edit')}</button></td></tr>`;
+    }).join('')}
           </tbody></table></div>` : vazio('Catálogo vazio', 'Cadastre os equipamentos que sua empresa comercializa.')}
       </section></div>`,
     montar(root) {
@@ -58,7 +60,7 @@ export default async function catalogo(ctx) {
         e.preventDefault();
         const f = Object.fromEntries(new FormData(e.target));
         if (!f.nome.trim()) return erro(new Error('Informe o nome do tipo.'));
-        try { await api.post('/api/tipos', f); toast(`Tipo “${f.nome.trim()}” incluído.`); ctx.recarregar(); } catch (err) { erro(err); }
+        try { await api.post('api/tipos', f); toast(`Tipo “${f.nome.trim()}” incluído.`); ctx.recarregar(); } catch (err) { erro(err); }
       };
       root.addEventListener('click', clique);
       root.addEventListener('submit', enviar);

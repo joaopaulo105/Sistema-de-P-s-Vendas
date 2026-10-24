@@ -38,8 +38,9 @@ export async function usuarioDaSessao(token) {
   return u ? { id: String(u._id), _id: u._id, nome: u.nome, email: u.email, telefone: u.telefone, perfil: u.perfil } : null;
 }
 
-export const cookieSessao = token => `${COOKIE}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${DURACAO_SESSAO / 1000}`;
-export const cookieLimpo = () => `${COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`;
+// base = prefixo pelo qual o app foi acessado ('' na raiz, '/posvendas' via xtech.net.br)
+export const cookieSessao = (token, base = '') => `${COOKIE}=${token}; HttpOnly; SameSite=Lax; Path=${base || '/'}; Max-Age=${DURACAO_SESSAO / 1000}`;
+export const cookieLimpo = (base = '') => `${COOKIE}=; HttpOnly; SameSite=Lax; Path=${base || '/'}; Max-Age=0`;
 
 export function lerCookies(header = '') {
   return Object.fromEntries(header.split(';').map(p => p.trim().split('=')).filter(p => p[0]).map(([k, ...v]) => [k, decodeURIComponent(v.join('='))]));

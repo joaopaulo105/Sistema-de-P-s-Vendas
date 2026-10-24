@@ -8,7 +8,7 @@ const PERIODOS = [['atrasadas', 'Somente atrasadas'], ['7', 'Até 7 dias'], ['30
 const filtro = { periodo: '30', cliente_id: '' };
 
 export default async function manutencoes(ctx) {
-  const [lista, clientes] = await Promise.all([api.get('/api/manutencoes' + qs(filtro)), api.get('/api/clientes')]);
+  const [lista, clientes] = await Promise.all([api.get('api/manutencoes' + qs(filtro)), api.get('api/clientes')]);
 
   const tabela = l => l.length ? `<div class="tbl-wrap"><table class="tbl">
     <thead><tr><th>Data</th><th>Equipamento</th><th>Cliente</th><th>Serviço</th><th>Alertas</th><th><span class="sr-only">Ações</span></th></tr></thead>
@@ -25,7 +25,7 @@ export default async function manutencoes(ctx) {
     html: `<section class="card">
       <div class="card-h"><h2>Programação de manutenção</h2><span class="sub" id="cont">${lista.length} pendente${lista.length === 1 ? '' : 's'}</span>
         <div class="r">
-          <a class="btn" id="imprimir" href="/documento.html?tipo=programacao${qs(filtro).replace('?', '&')}" target="_blank" rel="noopener">${ic('print')}Gerar relatório</a>
+          <a class="btn" id="imprimir" href="documento.html?tipo=programacao${qs(filtro).replace('?', '&')}" target="_blank" rel="noopener">${ic('print')}Gerar relatório</a>
           <button class="btn pri" type="button" data-agendar>${ic('plus')}Agendar</button></div></div>
       <form class="filters two" id="fMt">
         ${selecao('periodo', 'Período', opcoes(PERIODOS, filtro.periodo))}
@@ -36,10 +36,10 @@ export default async function manutencoes(ctx) {
     montar(root) {
       const atualizar = async () => {
         try {
-          const l = await api.get('/api/manutencoes' + qs(filtro));
+          const l = await api.get('api/manutencoes' + qs(filtro));
           $('#res', root).innerHTML = tabela(l);
           $('#cont', root).textContent = `${l.length} pendente${l.length === 1 ? '' : 's'}`;
-          $('#imprimir', root).href = `/documento.html?tipo=programacao${qs(filtro).replace('?', '&')}`;
+          $('#imprimir', root).href = `documento.html?tipo=programacao${qs(filtro).replace('?', '&')}`;
         } catch (e) { erro(e); }
       };
       const entrada = e => { if (e.target.closest('#fMt')) { filtro[e.target.name] = e.target.value; atualizar(); } };
@@ -48,7 +48,7 @@ export default async function manutencoes(ctx) {
         const r = e.target.closest('[data-realizar]');
         if (r) {
           e.stopPropagation();
-          try { await api.post(`/api/manutencoes/${r.dataset.realizar}/realizar`); toast('Manutenção marcada como realizada.'); ctx.atualizarAgenda(); atualizar(); } catch (err) { erro(err); }
+          try { await api.post(`api/manutencoes/${r.dataset.realizar}/realizar`); toast('Manutenção marcada como realizada.'); ctx.atualizarAgenda(); atualizar(); } catch (err) { erro(err); }
           return;
         }
         const tr = e.target.closest('[data-ir]');

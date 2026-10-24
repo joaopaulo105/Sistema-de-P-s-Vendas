@@ -12,7 +12,7 @@ const resumo = t => `<div class="sum-row"><span>Peças e materiais</span><b clas
 export default async function orcamento(ctx) {
   const novo = ctx.params[0] === 'novo';
   const [parque, usuarios, atual] = await Promise.all([
-    api.get('/api/parque'), api.get('/api/usuarios'), novo ? null : api.get(`/api/orcamentos/${ctx.params[0]}`),
+    api.get('api/parque'), api.get('api/usuarios'), novo ? null : api.get(`api/orcamentos/${ctx.params[0]}`),
   ]);
   if (!parque.length) return { titulo: 'Orçamento', html: `<div class="card"><div class="empty"><b>Nenhum equipamento no parque</b>Vincule um equipamento a um cliente antes de orçar. <a href="#/parque">Ir para o parque</a></div></div>` };
   const ativos = usuarios.filter(u => u.ativo);
@@ -76,7 +76,7 @@ export default async function orcamento(ctx) {
           <div class="sum-total"><span class="lbl">Valor total do orçamento</span><b id="total">${brl(t.total)}</b></div></section>
         <section class="card"><div class="card-b side-actions">
           <button class="btn pri" type="button" data-salvar>${ic('check')}Salvar orçamento</button>
-          ${atual ? `<a class="btn" href="/documento.html?tipo=orcamento&id=${atual.id}">${ic('print')}Imprimir / gerar PDF</a>` : ''}
+          ${atual ? `<a class="btn" href="documento.html?tipo=orcamento&id=${atual.id}">${ic('print')}Imprimir / gerar PDF</a>` : ''}
         </div></section>
       </aside>
     </form>`,
@@ -84,11 +84,13 @@ export default async function orcamento(ctx) {
     montar(root) {
       const form = $('#fOrc', root);
       const pads = [
-        montarAssinatura(root, 'cliente', { valor: d.assinatura_cliente, titulo: 'De acordo do cliente', aoMudar: val => {
-          d.assinatura_cliente = val;
-          // assinar o "de acordo" é aprovar o orçamento
-          if (val && d.situacao === 'Em aberto') { d.situacao = 'Aprovado'; $('#oSit', root).value = 'Aprovado'; toast('Situação alterada para Aprovado. Salve para confirmar.'); }
-        } }),
+        montarAssinatura(root, 'cliente', {
+          valor: d.assinatura_cliente, titulo: 'De acordo do cliente', aoMudar: val => {
+            d.assinatura_cliente = val;
+            // assinar o "de acordo" é aprovar o orçamento
+            if (val && d.situacao === 'Em aberto') { d.situacao = 'Aprovado'; $('#oSit', root).value = 'Aprovado'; toast('Situação alterada para Aprovado. Salve para confirmar.'); }
+          }
+        }),
         montarAssinatura(root, 'tecnico', { valor: d.assinatura_tecnico, titulo: 'Assinatura do responsável técnico', aoMudar: val => { d.assinatura_tecnico = val; } }),
       ];
       const recalcular = () => {
@@ -116,7 +118,7 @@ export default async function orcamento(ctx) {
         b.classList.add('busy');
         try {
           const corpo = { ...d, unidade: undefined, totais: undefined };
-          registro = registro ? await api.put(`/api/orcamentos/${registro.id}`, corpo) : await api.post('/api/orcamentos', corpo);
+          registro = registro ? await api.put(`api/orcamentos/${registro.id}`, corpo) : await api.post('api/orcamentos', corpo);
           toast(`${registro.codigo} salvo.`);
           if (novo) location.hash = `#/orcamentos/${registro.id}`; else ctx.recarregar();
         } catch (err) { erro(err); } finally { b.classList.remove('busy'); }

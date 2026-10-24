@@ -17,7 +17,7 @@ function abrirFormulario(c, aoSalvar) {
       ${campo('telefone', 'Telefone', c.telefone, 'inputmode="tel" maxlength="40"')}
       ${campo('email', 'E-mail', c.email, 'type="email" maxlength="160"')}</div>`,
     aoSalvar: async dados => {
-      if (c.id) await api.put(`/api/clientes/${c.id}`, dados); else await api.post('/api/clientes', dados);
+      if (c.id) await api.put(`api/clientes/${c.id}`, dados); else await api.post('api/clientes', dados);
       toast('Cliente salvo.');
       aoSalvar();
     },
@@ -31,7 +31,7 @@ function mascaraCnpj(v) {
 }
 
 export default async function clientes(ctx) {
-  const lista = await api.get('/api/clientes');
+  const lista = await api.get('api/clientes');
   const admin = ctx.user.perfil === 'Administrador';
   return {
     titulo: 'Clientes',
@@ -62,7 +62,7 @@ export default async function clientes(ctx) {
         if (ex) {
           const c = porId(ex.dataset.excluir);
           if (!await confirmar({ titulo: 'Excluir cliente', texto: `Excluir “${c.fantasia}”? Esta ação não pode ser desfeita.`, ok: 'Excluir', perigo: true })) return;
-          try { await api.del(`/api/clientes/${c.id}`); toast('Cliente excluído.'); recarregar(); } catch (err) { erro(err); }
+          try { await api.del(`api/clientes/${c.id}`); toast('Cliente excluído.'); recarregar(); } catch (err) { erro(err); }
         }
       };
       const mascara = e => { if (e.target.name === 'cnpj') e.target.value = mascaraCnpj(e.target.value); };

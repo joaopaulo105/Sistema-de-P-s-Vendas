@@ -13,9 +13,9 @@ form.addEventListener('submit', async e => {
   const btn = $('#entrar');
   btn.classList.add('busy'); btn.textContent = 'Entrando…';
   try {
-    await api.post('/api/login', dados);
+    await api.post('api/login', dados);
     const voltar = new URLSearchParams(location.search).get('voltar') || '';
-    location.href = '/' + (voltar.startsWith('#/') ? voltar : '');
+    location.href = './' + (voltar.startsWith('#/') ? voltar : '');
   } catch (err) {
     caixaErro.textContent = err.message;
     caixaErro.hidden = false;
@@ -26,7 +26,7 @@ form.addEventListener('submit', async e => {
 });
 
 // já logado? vai direto para o sistema
-fetch('/api/me', { credentials: 'same-origin' }).then(r => { if (r.ok) location.href = '/'; }).catch(() => {});
+fetch('api/me', { credentials: 'same-origin' }).then(r => { if (r.ok) location.href = './'; }).catch(() => { });
 
 // ---- espectro animado (curvas de absorbância nas cores dos tipos) ----
 const c = $('#espectro');

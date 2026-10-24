@@ -48,7 +48,7 @@ function desenharMenu(atual) {
 }
 
 export async function atualizarAgenda() {
-  try { estado.agenda = await api.get('/api/agenda?dias=30'); } catch { /* o menu segue sem contagem */ }
+  try { estado.agenda = await api.get('api/agenda?dias=30'); } catch { /* o menu segue sem contagem */ }
   desenharMenu(rotaAtual().caminho);
   if (estado.popAberto) desenharPop();
 }
@@ -109,7 +109,7 @@ document.addEventListener('click', async e => {
   const b = e.target.closest('[data-ex]');
   if (!b) return;
   try {
-    await api.post(`/api/exemplos/${b.dataset.ex}`);
+    await api.post(`api/exemplos/${b.dataset.ex}`);
     estado.config.exemplos = false;
     await atualizarAgenda();
     navegar();
@@ -158,7 +158,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && estado.popAberto) { estado.popAberto = false; desenharPop(); $('#bellBtn').focus(); }
 });
 $('#logoutBtn').addEventListener('click', async () => {
-  try { await api.post('/api/logout'); } finally { location.href = '/login.html'; }
+  try { await api.post('api/logout'); } finally { location.href = 'login.html'; }
 });
 window.addEventListener('hashchange', navegar);
 
@@ -177,13 +177,13 @@ new MutationObserver(rotularTabelas).observe($('#view'), { childList: true, subt
 // ---------- início ----------
 (async function iniciar() {
   try {
-    estado.user = await api.get('/api/me');
+    estado.user = await api.get('api/me');
   } catch { return; } // api.js redireciona para o login
   $('#userName').textContent = estado.user.nome;
   $('#userRole').textContent = estado.user.perfil;
   $('#avatar').textContent = iniciais(estado.user.nome);
   desenharBotaoTema();
-  try { estado.config = await api.get('/api/config'); } catch { estado.config = {}; }
+  try { estado.config = await api.get('api/config'); } catch { estado.config = {}; }
   await atualizarAgenda();
   await navegar();
   avisoDeEntrada();

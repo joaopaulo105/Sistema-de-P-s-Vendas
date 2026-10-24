@@ -3,7 +3,7 @@ import { api } from '../api.js';
 import { esc, ic, fmtD, pill, vazio } from '../util.js';
 
 export default async function relatorios() {
-  const lista = await api.get('/api/relatorios');
+  const lista = await api.get('api/relatorios');
   return {
     titulo: 'Relatórios técnicos',
     html: `<section class="card">
@@ -16,7 +16,7 @@ export default async function relatorios() {
           <td>${esc(r.equipamento || '—')}<span class="t2 mono">${esc(r.serie || '')}</span></td>
           <td>${esc(r.tecnico || '—')}</td><td class="num">${fmtD(r.conclusao)}</td>
           <td>${r.status === 'finalizado' ? pill('Finalizado', 'var(--ok)') : pill('Rascunho', 'var(--warn)')}</td>
-          <td class="r"><a class="btn sm ghost icon" href="/documento.html?tipo=relatorio&id=${r.id}" aria-label="Abrir documento ${esc(r.codigo)}">${ic('print')}</a></td>
+          <td class="r"><a class="btn sm ghost icon" href="documento.html?tipo=relatorio&id=${r.id}" aria-label="Abrir documento ${esc(r.codigo)}">${ic('print')}</a></td>
         </tr>`).join('')}</tbody></table></div>` : vazio('Nenhum relatório', 'Crie o primeiro a partir de um equipamento do parque.')}
     </section>`,
     montar(root) {

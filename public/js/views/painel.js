@@ -4,7 +4,7 @@ import { esc, ic, brl, corTipo, STATUS, agendaHTML, vazio } from '../util.js';
 import { linhaHistorico } from './equipamento.js';
 
 export default async function painel() {
-  const d = await api.get('/api/painel');
+  const d = await api.get('api/painel');
   const dataLonga = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const { atrasadas, proximas, semana, faixas } = d.manutencao;
   const maxF = Math.max(1, ...faixas);
@@ -53,7 +53,7 @@ export default async function painel() {
           <div class="card-b">${d.por_status.length ? `
             <div class="stack" role="img" aria-label="${d.por_status.map(s => `${s.status}: ${s.n}`).join(', ')}">${d.por_status.map(s => `<i style="--c:${STATUS[s.status]};flex:${s.n}" title="${s.status}: ${s.n}"></i>`).join('')}</div>
             <div class="legend">${d.por_status.map(s => `<span style="--c:${STATUS[s.status]}">${s.status} <b class="num">${s.n}</b></span>`).join('')}</div>`
-            : '<span class="hint">Nenhum equipamento no parque.</span>'}</div>
+        : '<span class="hint">Nenhum equipamento no parque.</span>'}</div>
         </section>
       </div>
     </div>

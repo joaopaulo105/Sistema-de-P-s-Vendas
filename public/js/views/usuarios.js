@@ -20,7 +20,7 @@ function abrirFormulario(u, aoSalvar) {
       <p class="hint spanall">Técnicos e administradores ativos recebem os alertas de manutenção no e-mail e no celular cadastrados.</p></div>`,
     aoSalvar: async dados => {
       if (!dados.senha) delete dados.senha;
-      if (novo) await api.post('/api/usuarios', dados); else await api.put(`/api/usuarios/${u.id}`, dados);
+      if (novo) await api.post('api/usuarios', dados); else await api.put(`api/usuarios/${u.id}`, dados);
       toast('Usuário salvo.');
       aoSalvar();
     },
@@ -28,7 +28,7 @@ function abrirFormulario(u, aoSalvar) {
 }
 
 export default async function usuarios(ctx) {
-  const lista = await api.get('/api/usuarios');
+  const lista = await api.get('api/usuarios');
   const admin = ctx.user.perfil === 'Administrador';
   return {
     titulo: 'Usuários',

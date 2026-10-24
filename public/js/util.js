@@ -4,7 +4,7 @@ export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-export const ic = nome => `<svg class="i" aria-hidden="true"><use href="/img/icones.svg#${nome}"/></svg>`;
+export const ic = nome => `<svg class="i" aria-hidden="true"><use href="img/icones.svg#${nome}"/></svg>`;
 
 const iso = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 export const hoje = () => iso(new Date());

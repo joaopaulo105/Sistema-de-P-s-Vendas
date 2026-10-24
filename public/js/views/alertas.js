@@ -9,7 +9,7 @@ const MARCO = m => m === 'antecipado' ? 'Aviso antecipado' : m === 'no-dia' ? 'N
 let filtroStatus = '';
 
 export default async function alertas(ctx) {
-  const d = await api.get('/api/alertas' + qs({ status: filtroStatus }));
+  const d = await api.get('api/alertas' + qs({ status: filtroStatus }));
   const admin = ctx.user.perfil === 'Administrador';
   const canal = (ok, nome, icone, cor, dica) => `<div class="canal" style="--c:${ok ? 'var(--ok)' : cor}">
     <span class="ic">${ic(icone)}</span>
@@ -46,7 +46,7 @@ export default async function alertas(ctx) {
         if (!b) return;
         b.classList.add('busy');
         try {
-          const r = await api.post('/api/alertas/executar');
+          const r = await api.post('api/alertas/executar');
           toast(`Verificação concluída: ${r.enviados} enviado(s), ${r.falhas} com erro, ${r.sem_configuracao} aguardando configuração.`);
           ctx.recarregar();
         } catch (err) { erro(err); } finally { b.classList.remove('busy'); }

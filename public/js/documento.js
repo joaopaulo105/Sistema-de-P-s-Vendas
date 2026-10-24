@@ -106,7 +106,7 @@ function orcamento(o, cfg) {
     <div class="sig">
       ${assinaturaLinha(o.assinatura_tecnico, 'Responsável técnico', o.tecnico)}
       ${assinaturaLinha(o.assinatura_cliente, 'De acordo — Cliente', o.aprovador_nome,
-        [o.aprovador_doc, `Data: ${o.cliente_assinou_em ? fmtD(o.cliente_assinou_em) : '____/____/______'}`].filter(Boolean).join(' · '))}
+    [o.aprovador_doc, `Data: ${o.cliente_assinou_em ? fmtD(o.cliente_assinou_em) : '____/____/______'}`].filter(Boolean).join(' · '))}
     </div>
     ${rodapeEmpresa(cfg)}</div>`;
 }
@@ -122,15 +122,15 @@ function programacao(lista, cfg) {
 }
 
 $('#imprimir').addEventListener('click', () => window.print());
-$('#voltar').addEventListener('click', () => { if (history.length > 1) history.back(); else location.href = '/'; });
+$('#voltar').addEventListener('click', () => { if (history.length > 1) history.back(); else location.href = './'; });
 
 (async () => {
   try {
-    const cfg = await api.get('/api/config');
+    const cfg = await api.get('api/config');
     let html = '';
-    if (p.tipo === 'relatorio') { const r = await api.get(`/api/relatorios/${encodeURIComponent(p.id)}`); html = relatorio(r, cfg); document.title = `${r.codigo} · Relatório técnico`; }
-    else if (p.tipo === 'orcamento') { const o = await api.get(`/api/orcamentos/${encodeURIComponent(p.id)}`); html = orcamento(o, cfg); document.title = `${o.codigo} · Orçamento`; }
-    else if (p.tipo === 'programacao') { const l = await api.get('/api/manutencoes' + qs({ periodo: p.periodo || '30', cliente_id: p.cliente_id || '' })); html = programacao(l, cfg); document.title = 'Programação de manutenção'; }
+    if (p.tipo === 'relatorio') { const r = await api.get(`api/relatorios/${encodeURIComponent(p.id)}`); html = relatorio(r, cfg); document.title = `${r.codigo} · Relatório técnico`; }
+    else if (p.tipo === 'orcamento') { const o = await api.get(`api/orcamentos/${encodeURIComponent(p.id)}`); html = orcamento(o, cfg); document.title = `${o.codigo} · Orçamento`; }
+    else if (p.tipo === 'programacao') { const l = await api.get('api/manutencoes' + qs({ periodo: p.periodo || '30', cliente_id: p.cliente_id || '' })); html = programacao(l, cfg); document.title = 'Programação de manutenção'; }
     else throw new Error('Documento não informado.');
     $('#doc').innerHTML = html;
   } catch (e) {

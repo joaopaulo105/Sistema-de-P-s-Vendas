@@ -1,30 +1,37 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Entrar · Espectro Pós-Vendas</title>
-  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="/css/tokens.css">
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/login.css">
-  <script src="/js/tema.js"></script>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/login.css">
+  <script src="js/tema.js"></script>
 </head>
+
 <body>
   <div class="login">
     <section class="login-art" aria-label="Apresentação">
       <canvas id="espectro" aria-hidden="true"></canvas>
       <div class="brand-row">
-        <img src="/img/logo.svg" alt="">
-        <div class="brand-name" style="font-family:var(--f-display);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#EEF2FB">Espectro<small style="display:block;font-size:10.5px;letter-spacing:.22em;color:var(--side-muted)">Pós-vendas · Lab</small></div>
+        <img src="img/logo.svg" alt="">
+        <div class="brand-name"
+          style="font-family:var(--f-display);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#EEF2FB">
+          Espectro<small style="display:block;font-size:10.5px;letter-spacing:.22em;color:var(--side-muted)">Pós-vendas
+            · Lab</small></div>
       </div>
       <div>
         <h1>Cada equipamento do seu parque, <em>em uma só leitura.</em></h1>
-        <p style="margin-top:14px">Cadastro de clientes, parque instalado, manutenções programadas com alertas, relatórios técnicos assinados no celular e orçamentos.</p>
+        <p style="margin-top:14px">Cadastro de clientes, parque instalado, manutenções programadas com alertas,
+          relatórios técnicos assinados no celular e orçamentos.</p>
       </div>
       <div class="legend-l" aria-hidden="true">
         <span style="--c:#FF5D72">HEM Hematologia</span>
@@ -50,10 +57,12 @@
           <input class="inp" id="senha" name="senha" type="password" autocomplete="current-password" required>
         </div>
         <button class="btn pri" type="submit" id="entrar">Entrar</button>
-        <p class="hint">Primeiro acesso: use o e-mail e a senha exibidos no terminal quando o servidor iniciou pela primeira vez.</p>
+        <p class="hint">Primeiro acesso: use o e-mail e a senha exibidos no terminal quando o servidor iniciou pela
+          primeira vez.</p>
       </form>
     </section>
   </div>
-  <script type="module" src="/js/login.js"></script>
+  <script type="module" src="js/login.js"></script>
 </body>
+
 </html>

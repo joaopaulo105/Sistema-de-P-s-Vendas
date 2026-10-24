@@ -12,7 +12,7 @@ const ROTULOS = {
 /** Item da linha do tempo (usado também no painel). */
 export function linhaHistorico(h, mostrarEquip = false) {
   const [rot, cor] = ROTULOS[h.tipo] || ['Ocorrência', 'var(--muted)'];
-  const doc = h.ref_id ? (h.ref_tipo === 'relatorio' ? `/documento.html?tipo=relatorio&id=${h.ref_id}` : h.ref_tipo === 'orcamento' ? `#/orcamentos/${h.ref_id}` : '') : '';
+  const doc = h.ref_id ? (h.ref_tipo === 'relatorio' ? `documento.html?tipo=relatorio&id=${h.ref_id}` : h.ref_tipo === 'orcamento' ? `#/orcamentos/${h.ref_id}` : '') : '';
   return `<li><span class="nd" style="--c:${cor}"></span><div>
     <div class="h">${esc(h.ocorrencia)}</div>
     <div class="m"><span class="num">${fmtD(h.data)}</span> · ${rot}${h.usuario ? ` · ${esc(h.usuario)}` : ''}
@@ -22,7 +22,7 @@ export function linhaHistorico(h, mostrarEquip = false) {
 
 /** Modal para agendar manutenção (com canais de alerta). */
 export async function agendarManutencao(parqueId, aoSalvar) {
-  const parque = (await api.get('/api/parque')).filter(u => u.status !== 'Sucata');
+  const parque = (await api.get('api/parque')).filter(u => u.status !== 'Sucata');
   if (!parque.length) return erro(new Error('Não há equipamentos ativos no parque.'));
   formModal({
     titulo: 'Agendar manutenção',
@@ -38,7 +38,7 @@ export async function agendarManutencao(parqueId, aoSalvar) {
         </div>
         <span class="hint">Os alertas vão para técnicos e administradores ativos, conforme a antecedência definida em Ajustes.</span></div></div>`,
     ok: 'Agendar',
-    aoSalvar: async dados => { await api.post('/api/manutencoes', dados); toast('Manutenção agendada.'); aoSalvar(); },
+    aoSalvar: async dados => { await api.post('api/manutencoes', dados); toast('Manutenção agendada.'); aoSalvar(); },
   });
 }
 
@@ -52,13 +52,13 @@ function movimentar(u, clientes, aoSalvar) {
       ${campo('obs', 'Observação', '', 'placeholder="Motivo, contrato, nota fiscal…" maxlength="300"', 'spanall')}
       <p class="hint spanall">Atual: ${esc(u.fantasia)} · ${esc(u.status)}. A alteração fica registrada no histórico do equipamento.</p></div>`,
     ok: 'Registrar',
-    aoSalvar: async dados => { await api.post(`/api/parque/${u.id}/movimentar`, dados); toast('Movimentação registrada no histórico.'); aoSalvar(); },
+    aoSalvar: async dados => { await api.post(`api/parque/${u.id}/movimentar`, dados); toast('Movimentação registrada no histórico.'); aoSalvar(); },
   });
 }
 
 export default async function equipamento(ctx) {
   const id = ctx.params[0];
-  const u = await api.get(`/api/parque/${id}`);
+  const u = await api.get(`api/parque/${id}`);
   const pend = u.manutencoes.filter(m => !m.realizada);
   const feitas = u.manutencoes.filter(m => m.realizada);
   const mt = m => `<div class="mt${m.realizada ? ' done' : ''}">
@@ -109,12 +109,12 @@ export default async function equipamento(ctx) {
       const recarregar = () => { ctx.atualizarAgenda(); ctx.recarregar(); };
       const clique = async e => {
         if (e.target.closest('[data-agendar]')) return agendarManutencao(u.id, recarregar);
-        if (e.target.closest('[data-movimentar]')) return movimentar(u, await api.get('/api/clientes'), recarregar);
+        if (e.target.closest('[data-movimentar]')) return movimentar(u, await api.get('api/clientes'), recarregar);
         const r = e.target.closest('[data-realizar]');
-        if (r) { try { await api.post(`/api/manutencoes/${r.dataset.realizar}/realizar`); toast('Manutenção marcada como realizada.'); recarregar(); } catch (err) { erro(err); } }
+        if (r) { try { await api.post(`api/manutencoes/${r.dataset.realizar}/realizar`); toast('Manutenção marcada como realizada.'); recarregar(); } catch (err) { erro(err); } }
         const x = e.target.closest('[data-excluir]');
         if (x && await confirmar({ titulo: 'Excluir manutenção', texto: 'Remover esta manutenção da programação? Os alertas dela também serão removidos.', ok: 'Excluir', perigo: true })) {
-          try { await api.del(`/api/manutencoes/${x.dataset.excluir}`); toast('Manutenção removida.'); recarregar(); } catch (err) { erro(err); }
+          try { await api.del(`api/manutencoes/${x.dataset.excluir}`); toast('Manutenção removida.'); recarregar(); } catch (err) { erro(err); }
         }
       };
       root.addEventListener('click', clique);

@@ -16,6 +16,9 @@ import sistema from './rotas/sistema.js';
 const PORTA = Number(process.env.PORT || 3000);
 const PUBLICO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
 const LIMITE_CORPO = 2 * 1024 * 1024;
+// Prefixo de publicação: o app responde tanto na raiz (seuapp.onrender.com) quanto sob o prefixo
+// (xtech.net.br/posvendas, via proxy do site principal). BASE_PATH='/' desativa o prefixo.
+const PREFIXO = String(process.env.BASE_PATH ?? '/posvendas').trim().replace(/^\/*/, '/').replace(/\/+$/, '');
 
 const router = new Router();
 [sistema, cadastros, parque, assistencia].forEach(registrar => registrar(router));
@@ -51,7 +54,7 @@ function lerCorpo(req) {
   });
 }
 
-async function api(req, res, url) {
+async function api(req, res, url, base) {
   const achou = router.encontrar(req.method, url.pathname);
   if (!achou) throw new HttpError(404, 'Rota não encontrada.');
   if (achou === 'metodo') throw new HttpError(405, 'Método não permitido.');
@@ -70,7 +73,7 @@ async function api(req, res, url) {
   }
   const query = Object.fromEntries(url.searchParams);
   const ip = req.socket.remoteAddress;
-  const r = await rota.handler({ params, query, body, user, cookies, ip, req });
+  const r = await rota.handler({ params, query, body, user, cookies, ip, req, base });
 
   if (r && r.$arquivo) {
     res.writeHead(200, { 'Content-Type': r.$arquivo.tipo, 'Content-Disposition': `attachment; filename="${r.$arquivo.nome}"`, 'Cache-Control': 'no-store', ...SEGURANCA });
@@ -99,9 +102,22 @@ function estatico(req, res, url) {
 
 const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+  let base = '';
+  if (PREFIXO) {
+    const caminho = url.pathname, pre = PREFIXO.toLowerCase(), cl = caminho.toLowerCase();
+    if (cl === pre || cl.startsWith(pre + '/')) {
+      // "/posvendas" sem barra, ou com maiúsculas diferentes → endereço canônico (os caminhos do front são relativos)
+      if (caminho === PREFIXO || !caminho.startsWith(PREFIXO + '/')) {
+        res.writeHead(301, { Location: PREFIXO + (caminho.slice(PREFIXO.length) || '/') + url.search });
+        return res.end();
+      }
+      base = PREFIXO;
+      url.pathname = caminho.slice(PREFIXO.length);
+    }
+  }
   if (!url.pathname.startsWith('/api/')) return estatico(req, res, url);
   try {
-    await api(req, res, url);
+    await api(req, res, url, base);
   } catch (e) {
     if (e instanceof HttpError) return enviarJSON(res, e.status, { erro: e.message, campos: e.campos });
     console.error(`[erro] ${req.method} ${url.pathname}`, e);

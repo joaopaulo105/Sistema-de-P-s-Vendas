@@ -26,7 +26,7 @@ function reduzirImagem(arquivo) {
 }
 
 export default async function ajustes(ctx) {
-  const c = await api.get('/api/config');
+  const c = await api.get('api/config');
   const admin = ctx.user.perfil === 'Administrador';
   const dis = admin ? '' : 'disabled';
   return {
@@ -59,7 +59,7 @@ export default async function ajustes(ctx) {
     ${admin ? `<section class="card"><div class="card-h"><h2>Backup do banco de dados</h2></div>
       <div class="card-b" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
         <p class="hint" style="flex:1;min-width:240px">Baixa todas as coleções do MongoDB em um arquivo JSON (formato estendido). Guarde em local seguro: o arquivo contém dados de clientes e os hashes das senhas.</p>
-        <a class="btn" href="/api/backup" download>${ic('download')}Baixar backup</a>
+        <a class="btn" href="api/backup" download>${ic('download')}Baixar backup</a>
       </div></section>` : ''}`,
     montar(root) {
       let logo = c.logo || null;
@@ -82,10 +82,10 @@ export default async function ajustes(ctx) {
         const btn = f.querySelector('[type=submit]');
         btn?.classList.add('busy');
         try {
-          if (f.id === 'fCfg') { dados.logo = logo; await api.put('/api/config', dados); Object.assign(ctx.config, dados); toast('Ajustes salvos.'); }
+          if (f.id === 'fCfg') { dados.logo = logo; await api.put('api/config', dados); Object.assign(ctx.config, dados); toast('Ajustes salvos.'); }
           if (f.id === 'fSenha') {
             if ((dados.nova || '').length < 8) throw new Error('A nova senha precisa ter ao menos 8 caracteres.');
-            await api.put('/api/me/senha', dados); f.reset(); toast('Senha alterada.');
+            await api.put('api/me/senha', dados); f.reset(); toast('Senha alterada.');
           }
         } catch (err) { erro(err); } finally { btn?.classList.remove('busy'); }
       };

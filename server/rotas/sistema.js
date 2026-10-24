@@ -14,7 +14,7 @@ const COLECOES_BACKUP = ['config', 'usuarios', 'clientes', 'tipos', 'equipamento
 
 export default r => {
   // ---------- autenticação ----------
-  r.post('/api/login', async ({ body, ip }) => {
+  r.post('/api/login', async ({ body, ip, base }) => {
     const email = normalizar(body.email);
     const chave = `${ip}|${email}`;
     if (!podeTentar(chave)) throw new HttpError(429, 'Muitas tentativas. Aguarde 5 minutos e tente de novo.');
@@ -25,12 +25,12 @@ export default r => {
     }
     limparFalhas(chave);
     const token = await criarSessao(u._id);
-    return { $cookie: cookieSessao(token), body: { id: String(u._id), nome: u.nome, perfil: u.perfil } };
+    return { $cookie: cookieSessao(token, base), body: { id: String(u._id), nome: u.nome, perfil: u.perfil } };
   }, PUBLICA);
 
-  r.post('/api/logout', async ({ cookies }) => {
+  r.post('/api/logout', async ({ cookies, base }) => {
     await encerrarSessao(cookies[COOKIE]);
-    return { $cookie: cookieLimpo(), body: { ok: true } };
+    return { $cookie: cookieLimpo(base), body: { ok: true } };
   }, PUBLICA);
 
   r.get('/api/me', async ({ user }) => ({ ...user, _id: undefined }));
@@ -114,8 +114,10 @@ export default r => {
       lista: lista.map(a => {
         const m = mts.get(String(a.manutencao_id));
         const u = m && detalharUnidade(unidades.get(String(m.parque_id)), M);
-        return { id: String(a._id), canal: a.canal, destino: a.destino, destinatario: a.destinatario, marco: a.marco, status: a.status, erro: a.erro, tentativas: a.tentativas, criado_em: a.criado_em, enviado_em: a.enviado_em,
-          data: m?.data, descricao: m?.descricao, parque_id: m ? String(m.parque_id) : null, equipamento: u?.equipamento, serie: u?.serie, fantasia: u?.fantasia };
+        return {
+          id: String(a._id), canal: a.canal, destino: a.destino, destinatario: a.destinatario, marco: a.marco, status: a.status, erro: a.erro, tentativas: a.tentativas, criado_em: a.criado_em, enviado_em: a.enviado_em,
+          data: m?.data, descricao: m?.descricao, parque_id: m ? String(m.parque_id) : null, equipamento: u?.equipamento, serie: u?.serie, fantasia: u?.fantasia
+        };
       }),
     };
   });
@@ -129,4 +131,3 @@ export default r => {
     return { $arquivo: { nome: `posvendas-backup-${hoje()}.json`, tipo: 'application/json', conteudo: BSON.EJSON.stringify(dump, { relaxed: false }) } };
   }, ADMIN);
 };
-
